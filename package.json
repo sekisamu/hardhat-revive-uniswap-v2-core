@@ -12,9 +12,10 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@parity/revive": "^0.0.9",
-    "hardhat": "^2.22.17"
+    "hardhat": "^2.22.18"
   },
   "dependencies": {
-    "hardhat-resolc": "^0.0.1"
+    "@nomicfoundation/hardhat-ignition": "^0.15.9",
+    "hardhat-resolc": "^0.0.3"
   }
 }
