@@ -1,17 +1,31 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("hardhat-resolc");
-// require("./tasks/deploy-revive");
-// require("./tasks/compile-revive");
+require("dotenv").config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: "0.8.19",
   networks: {
-    hardhat: { polkavm: true },
+    hardhat: { polkavm: true,
+      nodeConfig: {
+        nodeBinaryPath: '../../../code/polkadot-sdk/target/debug/substrate-node',
+        rpcPort: 8000,
+        dev: true,
+      },
+      adapterConfig: {
+        adapterBinaryPath: '../../../code/polkadot-sdk/target/debug/eth-rpc',
+        dev: true,
+      },
+    },
+    polkavm: {
+      polkavm: true,
+      url: 'http://127.0.0.1:8545',
+      accounts: [process.env.LOCAL_PRIV_KEY],
+    },
     // polkavm: { url: "http://127.0.0.1:8545" },
-    polkavm: { 
+    ah: { 
         url: "https://westend-asset-hub-eth-rpc.polkadot.io",
-        accounts: ['my_private_key'],
+        accounts: [process.env.AH_PRIV_KEY],
      },
   },
   resolc: {
