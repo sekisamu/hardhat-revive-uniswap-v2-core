@@ -1,4 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
+require("@nomicfoundation/hardhat-ignition");
+
 require("hardhat-resolc");
 require("dotenv").config();
 
