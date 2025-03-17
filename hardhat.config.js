@@ -30,15 +30,30 @@ module.exports = {
         accounts: [process.env.AH_PRIV_KEY],
      },
   },
+  // using remix compiler
+  // resolc: {
+  //   version: "1.5.2",
+  //   compilerSource: "remix",
+  //   settings: {
+  //     optimizer: {
+  //       enabled: false,
+  //       runs: 600,
+  //     },
+  //     evmVersion: "istanbul",
+  //   },
+  // },
+  
+  // using binary compiler
   resolc: {
-    version: "1.5.2",
-    compilerSource: "remix",
+    compilerSource: 'binary',
     settings: {
       optimizer: {
-        enabled: false,
-        runs: 600,
+        enabled: true,
+        runs: 400,
       },
-      evmVersion: "istanbul",
+      evmVersion: 'istanbul',
+      compilerPath: '~/.cargo/bin/resolc',
+      standardJson: true,
     },
   },
 };

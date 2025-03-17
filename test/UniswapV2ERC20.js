@@ -13,9 +13,9 @@ describe('UniswapV2ERC20', function () {
   beforeEach(async function () {
     const ERC20 = await ethers.getContractFactory("ERC20");
 
-    token = await ERC20.deploy();
+    token = await ERC20.deploy(TOTAL_SUPPLY);
     await token.waitForDeployment();
-    await token.mint(TOTAL_SUPPLY);
+
   });
   it('name, symbol, decimals, totalSupply, balanceOf, DOMAIN_SEPARATOR, PERMIT_TYPEHASH', async () => {
     const [deployer] = await hre.ethers.getSigners();
