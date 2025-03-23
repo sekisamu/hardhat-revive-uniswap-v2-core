@@ -5,7 +5,7 @@ const {
   getBigInt,
   getAddress,
   keccak256,
-  defaultAbiCoder,
+  AbiCoder,
   toUtf8Bytes,
   solidityPack
 } = require('ethers')
@@ -18,32 +18,34 @@ function expandTo18Decimals(n) {
   return getBigInt(n) * getBigInt('1000000000000000000')
 }
 
-// function getDomainSeparator(name, tokenAddress) {
-//   return keccak256(
-//     defaultAbiCoder.encode(
-//       ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
-//       [
-//         keccak256(toUtf8Bytes('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)')),
-//         keccak256(toUtf8Bytes(name)),
-//         keccak256(toUtf8Bytes('1')),
-//         1,
-//         tokenAddress
-//       ]
-//     )
-//   )
-// }
+async function getDomainSeparator(name, tokenAddress) {
+    const abiCoder = new AbiCoder();
+    let chainId = (await ethers.provider.getNetwork()).chainId;
+  return keccak256(
+    abiCoder.encode(
+      ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
+      [
+        keccak256(toUtf8Bytes('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)')),
+        keccak256(toUtf8Bytes(name)),
+        keccak256(toUtf8Bytes('1')),
+        chainId,
+        tokenAddress
+      ]
+    )
+  )
+}
 
-// function getCreate2Address(factoryAddress, [tokenA, tokenB], bytecode) {
-//   const [token0, token1] = tokenA < tokenB ? [tokenA, tokenB] : [tokenB, tokenA]
-//   const create2Inputs = [
-//     '0xff',
-//     factoryAddress,
-//     keccak256(solidityPack(['address', 'address'], [token0, token1])),
-//     keccak256(bytecode)
-//   ]
-//   const sanitizedInputs = `0x${create2Inputs.map(i => i.slice(2)).join('')}`
-//   return getAddress(`0x${keccak256(sanitizedInputs).slice(-40)}`)
-// }
+function getCreate2Address(factoryAddress, [tokenA, tokenB], bytecode) {
+  const [token0, token1] = tokenA < tokenB ? [tokenA, tokenB] : [tokenB, tokenA]
+  const create2Inputs = [
+    '0xff',
+    factoryAddress,
+    keccak256(solidityPack(['address', 'address'], [token0, token1])),
+    keccak256(bytecode)
+  ]
+  const sanitizedInputs = `0x${create2Inputs.map(i => i.slice(2)).join('')}`
+  return getAddress(`0x${keccak256(sanitizedInputs).slice(-40)}`)
+}
 
 // async function getApprovalDigest(token, approve, nonce, deadline) {
 //   const name = await token.name()
