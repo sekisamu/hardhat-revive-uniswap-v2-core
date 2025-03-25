@@ -7,7 +7,7 @@ const {
   keccak256,
   AbiCoder,
   toUtf8Bytes,
-  solidityPack
+  solidityPacked
 } = require('ethers')
 
 const PERMIT_TYPEHASH = keccak256(
@@ -40,11 +40,21 @@ function getCreate2Address(factoryAddress, [tokenA, tokenB], bytecode) {
   const create2Inputs = [
     '0xff',
     factoryAddress,
-    keccak256(solidityPack(['address', 'address'], [token0, token1])),
+    keccak256(solidityPacked(['address', 'address'], [token0, token1])),
     keccak256(bytecode)
   ]
-  const sanitizedInputs = `0x${create2Inputs.map(i => i.slice(2)).join('')}`
-  return getAddress(`0x${keccak256(sanitizedInputs).slice(-40)}`)
+  // const sanitizedInputs = `0x${create2Inputs.map(i => i.slice(2)).join('')}`
+  // return getAddress(`0x${keccak256(sanitizedInputs).slice(-40)}`)
+
+  const sanitizedInputs = create2Inputs.map(x => x?.slice(2) || '');
+  
+  const hash = keccak256(
+    `0x${sanitizedInputs.join('')}`
+  );
+
+  return `0x${hash.slice(2, 42)}`;
+
+
 }
 
 // async function getApprovalDigest(token, approve, nonce, deadline) {
@@ -92,7 +102,7 @@ function getCreate2Address(factoryAddress, [tokenA, tokenB], bytecode) {
 
 module.exports = {
   expandTo18Decimals,
-  // getCreate2Address,
+  getCreate2Address,
   // getApprovalDigest,
   // mineBlock,
   // encodePrice
