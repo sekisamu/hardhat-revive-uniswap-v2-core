@@ -30,8 +30,8 @@ let factory;
   beforeEach(async function () {
     const ERC20 = await ethers.getContractFactory("ERC20");
 
-    // token = await ERC20.deploy(TOTAL_SUPPLY);
-    // await token.waitForDeployment();
+    token = await ERC20.deploy(TOTAL_SUPPLY);
+    await token.waitForDeployment();
     [wallet, other] = await ethers.getSigners();
 
     const UniswapV2Factory = await ethers.getContractFactory("UniswapV2Factory");
@@ -48,13 +48,13 @@ let factory;
 
   async function createPair(tokens) {
     const UniswapV2Pair = await ethers.getContractFactory("UniswapV2Pair");
-    // let pair = await UniswapV2Pair.deploy({
-    //   allowUnlimitedInitCodeSize: true,
-    //   common: {
-    //     allowUnlimitedInitCodeSize: true,
-    //   },
-    // });
-    // await pair.waitForDeployment();
+    let pair = await UniswapV2Pair.deploy({
+      allowUnlimitedInitCodeSize: true,
+      common: {
+        allowUnlimitedInitCodeSize: true,
+      },
+    });
+    await pair.waitForDeployment();
 
     // const bytecode = `0x${UniswapV2Pair.evm.bytecode.object}`;
     const bytecode = UniswapV2Pair.bytecode;
