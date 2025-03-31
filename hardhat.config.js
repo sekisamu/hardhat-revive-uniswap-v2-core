@@ -1,8 +1,12 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("@nomicfoundation/hardhat-ignition");
 
-require("hardhat-resolc");
 require("dotenv").config();
+
+const USE_RESOLC = process.env.USE_RESOLC === 'true';
+if (USE_RESOLC) {
+  require("hardhat-resolc");
+}
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -41,31 +45,21 @@ module.exports = {
         accounts: [process.env.AH_PRIV_KEY, process.env.LOCAL_PRIV_KEY],
      },
   },
-  // 添加特定的 polkavm 配置
-  polkavm: {
-    settings: {
-      allowUnlimitedContractSize: true,
-      vm: {
-        allowUnlimitedContractSize: true
-      }
-    }
-  },
-  // using remix compiler
-  // resolc: {
-  //   version: "1.5.2",
-  //   compilerSource: "remix",
-  //   settings: {
-  //     optimizer: {
-  //       enabled: false,
-  //       runs: 600,
-  //     },
-  //     evmVersion: "istanbul",
-  //   },
-  // },
+
+  sepolia: {
+    url: "https://eth-sepolia.public.blastapi.io",
+    accounts: [process.env.LOCAL_PRIV_KEY],
+   },
+
+   moonbeam: {
+    url: "https://moonbeam.api.onfinality.io/public",
+    accounts: [process.env.LOCAL_PRIV_KEY],
+   },
   
   // using binary compiler
-  resolc: {
-    compilerSource: 'binary',
+  ...(USE_RESOLC ? {
+    resolc: {
+      compilerSource: 'binary',
     settings: {
       optimizer: {
         enabled: true,
@@ -74,6 +68,7 @@ module.exports = {
       evmVersion: 'istanbul',
       compilerPath: '~/.cargo/bin/resolc',
       standardJson: true,
-    },
-  },
+    }
+  }
+} : {})
 };
