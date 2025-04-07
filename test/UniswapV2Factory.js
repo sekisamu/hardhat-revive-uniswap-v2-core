@@ -7,10 +7,9 @@ const {
   getAddress,
   keccak256,
   AbiCoder,
-  toUtf8Bytes
+  toUtf8Bytes,
+  getCreate2Address
 } = require('ethers')
-
-const { getCreate2Address } = require('./shared/utilities');
 
 
 const TEST_ADDRESSES = [
@@ -34,6 +33,15 @@ let factory;
     await token.waitForDeployment();
     [wallet, other] = await ethers.getSigners();
 
+    // NOTE: It's not necessary to deploy the pair contract
+    // while pallet-revive now require the code exists on chain
+    // before it is deployed inside a contract.
+    const UniswapV2Pair = await ethers.getContractFactory("UniswapV2Pair");
+    let pair = await UniswapV2Pair.deploy({
+      allowUnlimitedInitCodeSize: true,
+    });
+    await pair.waitForDeployment();
+
     const UniswapV2Factory = await ethers.getContractFactory("UniswapV2Factory");
     factory = await UniswapV2Factory.deploy(wallet.address);
     await factory.waitForDeployment();
@@ -50,27 +58,25 @@ let factory;
     const UniswapV2Pair = await ethers.getContractFactory("UniswapV2Pair");
     let pair = await UniswapV2Pair.deploy({
       allowUnlimitedInitCodeSize: true,
-      common: {
-        allowUnlimitedInitCodeSize: true,
-      },
     });
     await pair.waitForDeployment();
 
     // const bytecode = `0x${UniswapV2Pair.evm.bytecode.object}`;
     const bytecode = UniswapV2Pair.bytecode;
     const create2Address = getCreate2Address(factory.address, tokens, bytecode);
+    console.log("Predicted create2Address of Pair", create2Address);
 
-    // await expect(factory.createPair(tokens[0], tokens[1]))
-      // .to.emit(factory, 'PairCreated')
-      // .withArgs(TEST_ADDRESSES[0], TEST_ADDRESSES[1], create2Address, 1n);
+    await expect(factory.createPair(tokens[0], tokens[1]))
+      .to.emit(factory, 'PairCreated')
+      .withArgs(TEST_ADDRESSES[0], TEST_ADDRESSES[1], create2Address, 1n);
     console.log("factory address", await factory.getAddress());
     await factory.createPair(tokens[0], tokens[1]);
-    // await expect(factory.createPair(...tokens)).to.be.reverted; // UniswapV2: PAIR_EXISTS
-    // await expect(factory.createPair(...tokens.slice().reverse())).to.be.reverted; // UniswapV2: PAIR_EXISTS
-    // expect(await factory.getPair(...tokens)).to.eq(create2Address);
-    // expect(await factory.getPair(...tokens.slice().reverse())).to.eq(create2Address);
-    // expect(await factory.allPairs(0)).to.eq(create2Address);
-    // expect(await factory.allPairsLength()).to.eq(1);
+    await expect(factory.createPair(...tokens)).to.be.reverted; // UniswapV2: PAIR_EXISTS
+    await expect(factory.createPair(...tokens.slice().reverse())).to.be.reverted; // UniswapV2: PAIR_EXISTS
+    expect(await factory.getPair(...tokens)).to.eq(create2Address);
+    expect(await factory.getPair(...tokens.slice().reverse())).to.eq(create2Address);
+    expect(await factory.allPairs(0)).to.eq(create2Address);
+    expect(await factory.allPairsLength()).to.eq(1);
 
     // const pair = new Contract(create2Address, JSON.stringify(UniswapV2Pair.abi), provider);
     // expect(await pair.factory()).to.eq(factory.address);
