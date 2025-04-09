@@ -24,8 +24,10 @@ Start the network by running:
 ## How to Initialize
 
 ```bash
-git clone https://github.com/sekisamu/hardhat-revive-storage
-npm install
+git clone https://github.com/sekisamu/hardhat-revive-uniswap-v2-core
+cd hardhat-revive-uniswap-v2-core
+git checkout code-size-limit
+pnpm install
 ```
 
 Open the `hardhat.config.js` file and update the following fields under networks -> hardhat:
