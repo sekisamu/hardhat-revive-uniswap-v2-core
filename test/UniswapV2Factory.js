@@ -33,20 +33,21 @@ let factory;
     // before it is deployed inside a contract.
 
 
-    [wallet, other] = await ethers.getSigners();
+    // [wallet, other] = await ethers.getSigners();
+    const provider = new ethers.JsonRpcProvider(hre.network.config.url);
+    const [walletKey, otherKey] = [hre.network.config.accounts[0], hre.network.config.accounts[1]];
+    [wallet, other] = [new ethers.Wallet(walletKey, provider), new ethers.Wallet(otherKey, provider)];
 
-    const UniswapV2Pair = await ethers.getContractFactory("UniswapV2Pair");
-    const ERC20 = await ethers.getContractFactory("ERC20");
+    const UniswapV2Pair = await ethers.getContractFactory("UniswapV2Pair", wallet);
+    const ERC20 = await ethers.getContractFactory("ERC20", wallet);
     token = await ERC20.deploy(TOTAL_SUPPLY);
     await token.waitForDeployment();
 
 
-    let pair = await UniswapV2Pair.deploy({
-      allowUnlimitedInitCodeSize: true,
-    });
+    let pair = await UniswapV2Pair.deploy();
     await pair.waitForDeployment();
 
-    const UniswapV2Factory = await ethers.getContractFactory("UniswapV2Factory");
+    const UniswapV2Factory = await ethers.getContractFactory("UniswapV2Factory", wallet);
     factory = await UniswapV2Factory.deploy(wallet.address);
     await factory.waitForDeployment();
 
