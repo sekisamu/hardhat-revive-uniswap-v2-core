@@ -20,7 +20,7 @@
   "dependencies": {
     "@nomicfoundation/hardhat-ignition": "^0.15.9",
     "dotenv": "^16.4.7",
-    "hardhat-resolc": "^0.0.3",
+    "hardhat-resolc": "^0.0.7",
     "hardhat-revive-node": "^0.0.6"
   }
 }
