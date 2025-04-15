@@ -2,10 +2,9 @@ require("@nomicfoundation/hardhat-toolbox");
 require("@nomicfoundation/hardhat-ignition");
 
 require("dotenv").config();
-require("hardhat-resolc");
 require("hardhat-revive-node");
 /** @type import('hardhat/config').HardhatUserConfig */
-module.exports = {
+const config = {
   solidity: "0.8.19",
   networks: {
     hardhat: {
@@ -47,20 +46,25 @@ module.exports = {
     url: "https://moonbeam.api.onfinality.io/public",
     accounts: [process.env.LOCAL_PRIV_KEY],
    },
-  
-  // using binary compiler
+};
 
-  resolc: {
+// check if resolc is needed
+const needsResolc = Object.values(config.networks).some(network => network.polkavm === true);
+
+if (needsResolc) {
+  require("hardhat-resolc");
+  config.resolc = {
     compilerSource: 'binary',
     settings: {
       optimizer: {
         enabled: true,
         runs: 400,
       },
-    evmVersion: 'istanbul',
-    compilerPath: '~/.cargo/bin/resolc',
-    standardJson: true,
-  }
+      evmVersion: 'istanbul',
+      compilerPath: '~/.cargo/bin/resolc',
+      standardJson: true,
+    },
+  };
 }
 
-};
+module.exports = config;

@@ -100,8 +100,16 @@ async function getDomainSeparator(name, tokenAddress) {
 //   ]
 // }
 
+
+// get the n wallets from hardhat config
+function getWallets(n) {
+  const provider = new ethers.JsonRpcProvider(hre.network.config.url);
+  const allWallets = hre.network.config.accounts.map(account => new ethers.Wallet(account, provider));
+  return allWallets.slice(0, n);
+}
 module.exports = {
   expandTo18Decimals,
+  getWallets,
   // getCreate2Address,
   // getApprovalDigest,
   // mineBlock,
