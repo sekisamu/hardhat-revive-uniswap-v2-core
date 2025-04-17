@@ -2,7 +2,7 @@ require("@nomicfoundation/hardhat-toolbox");
 require("@nomicfoundation/hardhat-ignition");
 
 require("dotenv").config();
-require("hardhat-revive-node");
+// require("hardhat-revive-node");
 /** @type import('hardhat/config').HardhatUserConfig */
 const config = {
   solidity: "0.8.19",
@@ -31,25 +31,35 @@ const config = {
       timeout: 1000000,
       initialBaseFeePerGas: 0,
     },
+
     ah: { 
       polkavm: true,
       url: "https://westend-asset-hub-eth-rpc.polkadot.io",
       accounts: [process.env.AH_PRIV_KEY, process.env.LOCAL_PRIV_KEY],
-     },
-  },
-  sepolia: {
-    url: "https://eth-sepolia.public.blastapi.io",
-    accounts: [process.env.LOCAL_PRIV_KEY],
-   },
+    },
 
-   moonbeam: {
-    url: "https://moonbeam.api.onfinality.io/public",
-    accounts: [process.env.LOCAL_PRIV_KEY],
-   },
+    sepolia: {
+      polkavm: false,
+      url: "https://eth-sepolia.api.onfinality.io/public",
+      accounts: [process.env.AH_PRIV_KEY, process.env.LOCAL_PRIV_KEY],
+    },
+
+    moonbeam: {
+      polkavm: false,
+      url: "https://moonbeam.api.onfinality.io/public",
+      accounts: [process.env.AH_PRIV_KEY, process.env.LOCAL_PRIV_KEY],
+    },
+  },
 };
 
-// check if resolc is needed
-const needsResolc = Object.values(config.networks).some(network => network.polkavm === true);
+const cliNetwork = process.argv.indexOf('--network') !== -1 
+  ? process.argv[process.argv.indexOf('--network') + 1]
+  : null;
+
+const needsResolc = config.networks[cliNetwork]?.polkavm === true;
+
+console.log("Current network:", cliNetwork);
+console.log("needsResolc:", needsResolc);
 
 if (needsResolc) {
   require("hardhat-resolc");
