@@ -78,27 +78,28 @@ async function getDomainSeparator(name, tokenAddress) {
 //   )
 // }
 
-// async function mineBlock(provider, timestamp) {
-//   await new Promise(async (resolve, reject) => {
-//     provider._web3Provider.sendAsync(
-//       { jsonrpc: '2.0', method: 'evm_mine', params: [timestamp] },
-//       (error, result) => {
-//         if (error) {
-//           reject(error)
-//         } else {
-//           resolve(result)
-//         }
-//       }
-//     )
-//   })
-// }
+async function mineBlock(provider, timestamp) {
+  await new Promise(async (resolve, reject) => {
+    provider._web3Provider.sendAsync(
+      { jsonrpc: '2.0', method: 'evm_mine', params: [timestamp] },
+      (error, result) => {
+        if (error) {
+          reject(error)
+        } else {
+          resolve(result)
+        }
+      }
+    )
+  })
+}
 
-// function encodePrice(reserve0, reserve1) {
-//   return [
-//     reserve1.mul(BigNumber.from(2).pow(112)).div(reserve0),
-//     reserve0.mul(BigNumber.from(2).pow(112)).div(reserve1)
-//   ]
-// }
+function encodePrice(reserve0, reserve1) {
+  const Q112 = 2n ** 112n;
+  return [
+    (reserve1 * Q112) / reserve0,
+    (reserve0 * Q112) / reserve1
+  ];
+}
 
 
 // get the n wallets from hardhat config
@@ -110,8 +111,7 @@ function getWallets(n) {
 module.exports = {
   expandTo18Decimals,
   getWallets,
-  // getCreate2Address,
   // getApprovalDigest,
-  // mineBlock,
-  // encodePrice
+  mineBlock,
+  encodePrice
 }

@@ -20,16 +20,9 @@ const config = {
       },
     },
     polkavm: {
-      polkavm: true,
-      allowUnlimitedContractSize: true,
-      // gas: "auto",
-      // gasPrice: "auto",
-      blockGasLimit: 3000000000,
-      // hardfork: "london",      
+      polkavm: true,   
       url: 'http://127.0.0.1:8545',
       accounts: [process.env.LOCAL_PRIV_KEY, process.env.AH_PRIV_KEY],
-      timeout: 1000000,
-      initialBaseFeePerGas: 0,
     },
 
     ah: { 
@@ -63,15 +56,16 @@ console.log("needsResolc:", needsResolc);
 
 if (needsResolc) {
   require("hardhat-resolc");
+  require("hardhat-revive-node");
+  // Standard JSON output
   config.resolc = {
     compilerSource: 'binary',
     settings: {
       optimizer: {
         enabled: true,
-        runs: 400,
       },
       evmVersion: 'istanbul',
-      compilerPath: '~/.cargo/bin/resolc',
+      compilerPath: '~/.cargo/bin/resolc-0.1.0-dev.14',
       standardJson: true,
     },
   };

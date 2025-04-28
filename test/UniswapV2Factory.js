@@ -33,15 +33,21 @@ let factory;
  
   beforeEach(async function () {
 
+
+    [wallet, other] = await ethers.getSigners();
+
     // NOTE: It's not necessary to deploy the pair contract
     // while pallet-revive now require the code exists on chain
     // before it is deployed inside a contract.
-    [deployer] = getWallets(1);
-    [wallet, other] = await ethers.getSigners();
+    let UniswapV2Pair;
+    if (hre.network.name == 'polkavm' || hre.network.name == 'ah') {
+      UniswapV2Pair = await ethers.getContractFactory("UniswapV2Pair", getWallets(1)[0]);
+    } else {
+      UniswapV2Pair = await ethers.getContractFactory("UniswapV2Pair");
+    }
 
-    const UniswapV2Pair = await ethers.getContractFactory("UniswapV2Pair", deployer);
     const ERC20 = await ethers.getContractFactory("ERC20", deployer);
-    token = await ERC20.deploy(TOTAL_SUPPLY, deployer);
+    token = await ERC20.deploy(TOTAL_SUPPLY);
     await token.waitForDeployment();
 
 
@@ -69,7 +75,6 @@ let factory;
 
     let salt = keccak256(solidityPacked(['address', 'address'], [token0, token1]));
     const create2Address = getCreate2Address(await factory.getAddress(), salt, initCodeHash);
-    console.log("Predicted create2Address of Pair", create2Address);
 
     await expect(factory.createPair(tokens[0], tokens[1])).to.emit(factory, "PairCreated")
     .withArgs(TEST_ADDRESSES[0], TEST_ADDRESSES[1], create2Address, 1n);
@@ -113,7 +118,6 @@ let factory;
     await expect(factory.connect(other).setFeeToSetter(other.address))
       .to.be.revertedWith('UniswapV2: FORBIDDEN');
 
-    console.log("feeToSetter", await factory.feeToSetter());
     await factory.setFeeToSetter(other.address);
     expect(await factory.feeToSetter()).to.eq(other.address);
     await expect(factory.setFeeToSetter(wallet.address))
