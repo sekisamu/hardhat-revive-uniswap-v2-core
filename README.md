@@ -26,7 +26,6 @@ Start the network by running:
 ```bash
 git clone https://github.com/sekisamu/hardhat-revive-uniswap-v2-core
 cd hardhat-revive-uniswap-v2-core
-git checkout code-size-limit
 pnpm install
 ```
 
@@ -44,8 +43,7 @@ And add the following fields under resolc -> settings:
 ```
 compilerPath: Set this to the local path of your resolc binary.
 ```
-
-Ensure that both paths correctly point to the respective executable files.
+Remember to use `0.1.0-dev.14` or later for the resolc version, and ensure that both paths correctly point to the respective executable files.
 
 How to Test
 
@@ -56,5 +54,3 @@ npx hardhat test --network polkavm
 # For EVM chains
 npx hardhat test --network sepolia
 ```
-
-Note: You need to restart the network and rpc endpoint after each test (For PolkaVM chains).
