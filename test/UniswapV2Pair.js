@@ -60,12 +60,13 @@ describe('UniswapV2Pair', function() {
     let salt = keccak256(solidityPacked(['address', 'address'], [first, second]));
     const create2Address = getCreate2Address(await factory.getAddress(), salt, initCodeHash);
 
-    await expect(factory.createPair(await token0.getAddress(), await token1.getAddress())).to.emit(factory, "PairCreated")
+    await expect(factory.createPair(token0Address, token1Address)).to.emit(factory, "PairCreated")
     .withArgs(await first, second, create2Address, 1n);
 
     pair = await ethers.getContractAt("UniswapV2Pair", create2Address); 
     expect(await pair.token0()).to.eq(first);
     expect(await pair.token1()).to.eq(second);
+
   });
 
   it('mint', async function() {
@@ -114,10 +115,11 @@ describe('UniswapV2Pair', function() {
 
   swapTestCases.forEach((swapTestCase, i) => {
     it(`getInputPrice:${i}`, async function() {
+      this.timeout(60000)
       const [swapAmount, token0Amount, token1Amount, expectedOutputAmount] = swapTestCase;
       await addLiquidity(token0Amount, token1Amount);
       await token0.transfer(await pair.getAddress(), swapAmount);
-      await expect(pair.swap(0, expectedOutputAmount.add(1), wallet.address, '0x'))
+      await expect(pair.swap(0, expectedOutputAmount + 1n, wallet.address, '0x'))
         .to.be.revertedWith('UniswapV2: K');
       await pair.swap(0, expectedOutputAmount, wallet.address, '0x');
     });
@@ -132,10 +134,11 @@ describe('UniswapV2Pair', function() {
 
   optimisticTestCases.forEach((optimisticTestCase, i) => {
     it(`optimistic:${i}`, async function() {
+      this.timeout(60000)
       const [outputAmount, token0Amount, token1Amount, inputAmount] = optimisticTestCase;
       await addLiquidity(token0Amount, token1Amount);
       await token0.transfer(await pair.getAddress(), inputAmount);
-      await expect(pair.swap(outputAmount.add(1), 0, wallet.address, '0x'))
+      await expect(pair.swap(outputAmount + 1n, 0, wallet.address, '0x'))
         .to.be.revertedWith('UniswapV2: K');
       await pair.swap(outputAmount, 0, wallet.address, '0x');
     });

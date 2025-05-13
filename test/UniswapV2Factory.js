@@ -45,22 +45,21 @@ let factory;
     } else {
       UniswapV2Pair = await ethers.getContractFactory("UniswapV2Pair");
     }
+    // const UniswapV2Pair = await ethers.getContractFactory("UniswapV2Pair");
+    let pair = await UniswapV2Pair.deploy();
+    await pair.waitForDeployment();
 
     const ERC20 = await ethers.getContractFactory("ERC20", deployer);
     token = await ERC20.deploy(TOTAL_SUPPLY);
     await token.waitForDeployment();
 
 
-    let pair = await UniswapV2Pair.deploy();
-    await pair.waitForDeployment();
-
     const UniswapV2Factory = await ethers.getContractFactory("UniswapV2Factory");
     factory = await UniswapV2Factory.deploy(wallet.address);
     await factory.waitForDeployment();
 
   });
-
-
+  
   it('feeTo, feeToSetter, allPairsLength', async function() {
     expect(await factory.feeTo()).to.eq(ethers.ZeroAddress);
     expect(await factory.feeToSetter()).to.eq(wallet.address);
